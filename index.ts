@@ -1,5 +1,5 @@
-function greet(name: string) {
-  console.log("Hello, " + name)
+function greet(name: string): void {
+  console.log("Hello, " + name);
 }
 
-greet("TypeScript")
+greet("TypeScript");

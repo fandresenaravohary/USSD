@@ -1,5 +1,5 @@
-import eslintPluginTs from "@typescript-eslint/eslint-plugin";
 import parserTs from "@typescript-eslint/parser";
+import eslintPluginTs from "@typescript-eslint/eslint-plugin";
 
 export default [
   {
@@ -16,23 +16,35 @@ export default [
       "@typescript-eslint": eslintPluginTs,
     },
     rules: {
-      camelcase: ["error", { properties: "always" }],
-
       "@typescript-eslint/naming-convention": [
         "error",
         {
-          selector: "variableLike",
+          selector: "default",
           format: ["camelCase"],
+          leadingUnderscore: "allow",
+        },
+        { selector: "variableLike", format: ["camelCase"] },
+        { selector: "function", format: ["camelCase"] },
+        {
+          selector: "parameter",
+          format: ["camelCase"],
+          leadingUnderscore: "allow",
         },
         {
-          selector: "class",
-          format: ["PascalCase"],
-        },
-        {
-          selector: "function",
+          selector: "memberLike",
+          modifiers: ["private"],
           format: ["camelCase"],
+          leadingUnderscore: "require",
         },
+        { selector: "typeLike", format: ["PascalCase"] },
       ],
+
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 ];

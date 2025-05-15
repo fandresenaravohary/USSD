@@ -18,10 +18,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '23'
+          node-version: "23"
 
       - name: Install dependencies
         run: npm install
 
+      - name: Check filenames
+        run: npm run check:filenames
+
       - name: Run ESLint
-        run: npx eslint . --ext .ts --max-warnings=0
+        run: npm run lint
