@@ -46,13 +46,13 @@ Menu Principal MyTel (*123#)
           await this.afterActionMenu();
           break;
         case "2":
-          await this.handleRecharge();
+          await this.rechargeMenu();
           break;
         case "3":
-          await this.handleWithdraw();
+          await this.withdrawMenu();
           break;
         case "4":
-          await this.handleTransfer();
+          await this.transferMenu();
           break;
         case "0":
           this.quit();
@@ -67,84 +67,171 @@ Menu Principal MyTel (*123#)
     console.log(`Solde actuel : ${this.account.checkBalance()} unités.`);
   }
 
+  private async rechargeMenu(): Promise<void> {
+    while (true) {
+      console.log(`
+=== Menu Recharge ===
+1. Entrer un numéro de téléphone pour recharger
+0. Retour au menu principal
+`);
+      const choice = await this.inputHandler.ask("Votre choix : ");
+      if (choice === "BACK" || choice === "TIMEOUT") return;
+
+      switch (choice) {
+        case "1":
+          await this.handleRecharge();
+          return;
+        case "0":
+          return;
+        default:
+          console.log("Choix invalide.");
+      }
+    }
+  }
+
+  private async withdrawMenu(): Promise<void> {
+    while (true) {
+      console.log(`
+=== Menu Retrait ===
+1. Entrer un montant à retirer
+0. Retour au menu principal
+`);
+      const choice = await this.inputHandler.ask("Votre choix : ");
+      if (choice === "BACK" || choice === "TIMEOUT") return;
+
+      switch (choice) {
+        case "1":
+          await this.handleWithdraw();
+          return;
+        case "0":
+          return;
+        default:
+          console.log("Choix invalide.");
+      }
+    }
+  }
+
+  private async transferMenu(): Promise<void> {
+    while (true) {
+      console.log(`
+=== Menu Transfert ===
+1. Entrer un numéro et un montant à transférer
+0. Retour au menu principal
+`);
+      const choice = await this.inputHandler.ask("Votre choix : ");
+      if (choice === "BACK" || choice === "TIMEOUT") return;
+
+      switch (choice) {
+        case "1":
+          await this.handleTransfer();
+          return;
+        case "0":
+          return;
+        default:
+          console.log("Choix invalide.");
+      }
+    }
+  }
+
   private async handleRecharge(): Promise<void> {
-    const numero = await this.inputHandler.ask("Numéro de téléphone : ");
-    if (numero === "BACK" || numero === "TIMEOUT") return;
+    while (true) {
+      const numero = await this.inputHandler.ask(
+        "Numéro de téléphone (ou * pour annuler) : "
+      );
+      if (numero === "BACK" || numero === "TIMEOUT") return;
 
-    const isValid = /^0[3-4][0-9]{8}$/.test(numero);
-    if (!isValid) {
-      console.log("Numéro invalide. Format attendu : 03XXXXXXXX ou 04XXXXXXXX");
-      return;
+      const isValid = /^0[3-4][0-9]{8}$/.test(numero);
+      if (!isValid) {
+        console.log(
+          "Numéro invalide. Format attendu : 03XXXXXXXX ou 04XXXXXXXX"
+        );
+        continue;
+      }
+
+      const amountStr = await this.inputHandler.ask(
+        "Montant à recharger (ou * pour annuler) : "
+      );
+      if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
+
+      const amount = parseFloat(amountStr);
+      if (isNaN(amount) || amount <= 0) {
+        console.log("Montant invalide.");
+        continue;
+      }
+
+      this.account.add(amount);
+      console.log(`Recharge de ${amount} unités effectuée.`);
+      this.showBalance();
+      await this.afterActionMenu();
+      break;
     }
-
-    const amountStr = await this.inputHandler.ask("Montant à recharger : ");
-    if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
-
-    const amount = parseFloat(amountStr);
-    if (isNaN(amount) || amount <= 0) {
-      console.log("Montant invalide.");
-      return;
-    }
-
-    this.account.add(amount);
-    console.log(`Recharge de ${amount} unités effectuée.`);
-    this.showBalance();
-    await this.afterActionMenu();
   }
 
   private async handleWithdraw(): Promise<void> {
-    const amountStr = await this.inputHandler.ask("Montant à retirer : ");
-    if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
+    while (true) {
+      const amountStr = await this.inputHandler.ask(
+        "Montant à retirer (ou * pour annuler) : "
+      );
+      if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
 
-    const amount = parseFloat(amountStr);
-    if (isNaN(amount) || amount <= 0) {
-      console.log("Montant invalide.");
-      return;
-    }
+      const amount = parseFloat(amountStr);
+      if (isNaN(amount) || amount <= 0) {
+        console.log("Montant invalide.");
+        continue;
+      }
 
-    try {
-      this.account.spend(amount);
-      console.log(`Retrait de ${amount} unités effectué.`);
-      this.showBalance();
-    } catch (err) {
-      if (err instanceof Error) {
-        console.log(err.message);
+      try {
+        this.account.spend(amount);
+        console.log(`Retrait de ${amount} unités effectué.`);
+        this.showBalance();
+        await this.afterActionMenu();
+        break;
+      } catch (err) {
+        if (err instanceof Error) {
+          console.log(err.message);
+        }
       }
     }
-
-    await this.afterActionMenu();
   }
 
   private async handleTransfer(): Promise<void> {
-    const numero = await this.inputHandler.ask("Numéro du destinataire : ");
-    if (numero === "BACK" || numero === "TIMEOUT") return;
+    while (true) {
+      const numero = await this.inputHandler.ask(
+        "Numéro du destinataire (ou * pour annuler) : "
+      );
+      if (numero === "BACK" || numero === "TIMEOUT") return;
 
-    const isValid = /^0[3-4][0-9]{8}$/.test(numero);
-    if (!isValid) {
-      console.log("Numéro invalide. Format attendu : 03XXXXXXXX ou 04XXXXXXXX");
-      return;
-    }
+      const isValid = /^0[3-4][0-9]{8}$/.test(numero);
+      if (!isValid) {
+        console.log(
+          "Numéro invalide. Format attendu : 03XXXXXXXX ou 04XXXXXXXX"
+        );
+        continue;
+      }
 
-    const amountStr = await this.inputHandler.ask("Montant à transférer : ");
-    if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
+      const amountStr = await this.inputHandler.ask(
+        "Montant à transférer (ou * pour annuler) : "
+      );
+      if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
 
-    const amount = parseFloat(amountStr);
-    if (isNaN(amount) || amount <= 0) {
-      console.log("Montant invalide.");
-      return;
-    }
+      const amount = parseFloat(amountStr);
+      if (isNaN(amount) || amount <= 0) {
+        console.log("Montant invalide.");
+        continue;
+      }
 
-    try {
-      this.account.spend(amount);
-      console.log(`Transfert de ${amount} unités vers ${numero} effectué.`);
-      this.showBalance();
-    } catch (err) {
-      if (err instanceof Error) {
-        console.log(err.message);
+      try {
+        this.account.spend(amount);
+        console.log(`Transfert de ${amount} unités vers ${numero} effectué.`);
+        this.showBalance();
+        await this.afterActionMenu();
+        break;
+      } catch (err) {
+        if (err instanceof Error) {
+          console.log(err.message);
+        }
       }
     }
-
-    await this.afterActionMenu();
   }
 
   private async afterActionMenu(): Promise<void> {
