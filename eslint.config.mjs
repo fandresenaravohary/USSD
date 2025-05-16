@@ -21,20 +21,17 @@ export default [
         {
           selector: "default",
           format: ["camelCase"],
-          leadingUnderscore: "allow",
         },
         { selector: "variableLike", format: ["camelCase"] },
         { selector: "function", format: ["camelCase"] },
         {
           selector: "parameter",
           format: ["camelCase"],
-          leadingUnderscore: "allow",
         },
         {
           selector: "memberLike",
           modifiers: ["private"],
           format: ["camelCase"],
-          leadingUnderscore: "require",
         },
         { selector: "typeLike", format: ["PascalCase"] },
       ],
