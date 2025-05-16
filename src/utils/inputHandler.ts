@@ -15,14 +15,12 @@ export class InputHandler {
 
   async ask(question: string): Promise<InputResult> {
     return new Promise((resolve) => {
-      process.stdout.write(question);
-
       const timer = setTimeout(() => {
         console.log("\nTemps écoulé. Retour au menu principal.");
         resolve("TIMEOUT");
       }, this.timeoutMs);
 
-      this.rl.question("", (answer) => {
+      this.rl.question(question, (answer) => {
         clearTimeout(timer);
         const trimmed = answer.trim();
         resolve(trimmed === "*" ? "BACK" : trimmed);

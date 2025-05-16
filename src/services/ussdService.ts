@@ -36,7 +36,6 @@ Menu Principal MyTel (*123#)
 3. Retirer de l'argent
 4. Transférer de l'argent
 0. Quitter le service
-(Tapez * à tout moment pour revenir)
 `);
       const choice = await this.inputHandler.ask("Votre choix : ");
       if (choice === "BACK" || choice === "TIMEOUT") continue;
