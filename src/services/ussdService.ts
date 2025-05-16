@@ -11,11 +11,11 @@ export class UssdService {
   }
 
   async startSession(): Promise<void> {
-    console.log("\nBienvenue sur le service USSD MyTel.");
-    console.log("Entrez un code USSD pour démarrer\n");
+    console.log("\nWelcome to the USSD MyTel service.");
+    console.log("Enter a USSD code to start\n");
 
     while (true) {
-      const code = await this.inputHandler.ask("Code USSD : ");
+      const code = await this.inputHandler.ask("USSD Code: ");
       if (code === "BACK" || code === "TIMEOUT") continue;
 
       if (code === "*123#") {
@@ -23,21 +23,21 @@ export class UssdService {
         break;
       }
 
-      console.log("Code invalide. Veuillez réessayer.");
+      console.log("Invalid code. Please try again.");
     }
   }
 
   private async mainMenu(): Promise<void> {
     while (true) {
       console.log(`
-Menu Principal MyTel (*123#)
-1. Consulter mon solde
-2. Recharger mon compte
-3. Retirer de l'argent
-4. Transférer de l'argent
-0. Quitter le service
+Main Menu MyTel (*123#)
+1. Check balance
+2. Top up account
+3. Withdraw money
+4. Transfer money
+0. Exit service
 `);
-      const choice = await this.inputHandler.ask("Votre choix : ");
+      const choice = await this.inputHandler.ask("Your choice: ");
       if (choice === "BACK" || choice === "TIMEOUT") continue;
 
       switch (choice) {
@@ -58,23 +58,23 @@ Menu Principal MyTel (*123#)
           this.quit();
           return;
         default:
-          console.log("Choix invalide.");
+          console.log("Invalid choice.");
       }
     }
   }
 
   private showBalance(): void {
-    console.log(`Solde actuel : ${this.account.checkBalance()} unités.`);
+    console.log(`Current balance: ${this.account.checkBalance()} units.`);
   }
 
   private async rechargeMenu(): Promise<void> {
     while (true) {
       console.log(`
-=== Menu Recharge ===
-1. Entrer un numéro de téléphone pour recharger
-0. Retour au menu principal
+=== Top-up Menu ===
+1. Enter a phone number to top up
+0. Return to main menu
 `);
-      const choice = await this.inputHandler.ask("Votre choix : ");
+      const choice = await this.inputHandler.ask("Your choice: ");
       if (choice === "BACK" || choice === "TIMEOUT") return;
 
       switch (choice) {
@@ -84,7 +84,7 @@ Menu Principal MyTel (*123#)
         case "0":
           return;
         default:
-          console.log("Choix invalide.");
+          console.log("Invalid choice.");
       }
     }
   }
@@ -92,11 +92,11 @@ Menu Principal MyTel (*123#)
   private async withdrawMenu(): Promise<void> {
     while (true) {
       console.log(`
-=== Menu Retrait ===
-1. Entrer un montant à retirer
-0. Retour au menu principal
+=== Withdraw Menu ===
+1. Enter an amount to withdraw
+0. Return to main menu
 `);
-      const choice = await this.inputHandler.ask("Votre choix : ");
+      const choice = await this.inputHandler.ask("Your choice: ");
       if (choice === "BACK" || choice === "TIMEOUT") return;
 
       switch (choice) {
@@ -106,7 +106,7 @@ Menu Principal MyTel (*123#)
         case "0":
           return;
         default:
-          console.log("Choix invalide.");
+          console.log("Invalid choice.");
       }
     }
   }
@@ -114,11 +114,11 @@ Menu Principal MyTel (*123#)
   private async transferMenu(): Promise<void> {
     while (true) {
       console.log(`
-=== Menu Transfert ===
-1. Entrer un numéro et un montant à transférer
-0. Retour au menu principal
+=== Transfer Menu ===
+1. Enter a number and amount to transfer
+0. Return to main menu
 `);
-      const choice = await this.inputHandler.ask("Votre choix : ");
+      const choice = await this.inputHandler.ask("Your choice: ");
       if (choice === "BACK" || choice === "TIMEOUT") return;
 
       switch (choice) {
@@ -128,39 +128,39 @@ Menu Principal MyTel (*123#)
         case "0":
           return;
         default:
-          console.log("Choix invalide.");
+          console.log("Invalid choice.");
       }
     }
   }
 
   private async handleRecharge(): Promise<void> {
     while (true) {
-      const numero = await this.inputHandler.ask(
-        "Numéro de téléphone (ou * pour annuler) : "
+      const number = await this.inputHandler.ask(
+        "Phone number (or * to cancel): "
       );
-      if (numero === "BACK" || numero === "TIMEOUT") return;
+      if (number === "BACK" || number === "TIMEOUT") return;
 
-      const isValid = /^0[3-4][0-9]{8}$/.test(numero);
+      const isValid = /^0[3-4][0-9]{8}$/.test(number);
       if (!isValid) {
         console.log(
-          "Numéro invalide. Format attendu : 03XXXXXXXX ou 04XXXXXXXX"
+          "Invalid number. Expected format: 03XXXXXXXX or 04XXXXXXXX"
         );
         continue;
       }
 
       const amountStr = await this.inputHandler.ask(
-        "Montant à recharger (ou * pour annuler) : "
+        "Amount to top up (or * to cancel): "
       );
       if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
 
       const amount = parseFloat(amountStr);
       if (isNaN(amount) || amount <= 0) {
-        console.log("Montant invalide.");
+        console.log("Invalid amount.");
         continue;
       }
 
       this.account.add(amount);
-      console.log(`Recharge de ${amount} unités effectuée.`);
+      console.log(`Top-up of ${amount} units successful.`);
       this.showBalance();
       await this.afterActionMenu();
       break;
@@ -170,19 +170,19 @@ Menu Principal MyTel (*123#)
   private async handleWithdraw(): Promise<void> {
     while (true) {
       const amountStr = await this.inputHandler.ask(
-        "Montant à retirer (ou * pour annuler) : "
+        "Amount to withdraw (or * to cancel): "
       );
       if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
 
       const amount = parseFloat(amountStr);
       if (isNaN(amount) || amount <= 0) {
-        console.log("Montant invalide.");
+        console.log("Invalid amount.");
         continue;
       }
 
       try {
         this.account.spend(amount);
-        console.log(`Retrait de ${amount} unités effectué.`);
+        console.log(`Withdrawal of ${amount} units successful.`);
         this.showBalance();
         await this.afterActionMenu();
         break;
@@ -196,33 +196,33 @@ Menu Principal MyTel (*123#)
 
   private async handleTransfer(): Promise<void> {
     while (true) {
-      const numero = await this.inputHandler.ask(
-        "Numéro du destinataire (ou * pour annuler) : "
+      const number = await this.inputHandler.ask(
+        "Recipient number (or * to cancel): "
       );
-      if (numero === "BACK" || numero === "TIMEOUT") return;
+      if (number === "BACK" || number === "TIMEOUT") return;
 
-      const isValid = /^0[3-4][0-9]{8}$/.test(numero);
+      const isValid = /^0[3-4][0-9]{8}$/.test(number);
       if (!isValid) {
         console.log(
-          "Numéro invalide. Format attendu : 03XXXXXXXX ou 04XXXXXXXX"
+          "Invalid number. Expected format: 03XXXXXXXX or 04XXXXXXXX"
         );
         continue;
       }
 
       const amountStr = await this.inputHandler.ask(
-        "Montant à transférer (ou * pour annuler) : "
+        "Amount to transfer (or * to cancel): "
       );
       if (amountStr === "BACK" || amountStr === "TIMEOUT") return;
 
       const amount = parseFloat(amountStr);
       if (isNaN(amount) || amount <= 0) {
-        console.log("Montant invalide.");
+        console.log("Invalid amount.");
         continue;
       }
 
       try {
         this.account.spend(amount);
-        console.log(`Transfert de ${amount} unités vers ${numero} effectué.`);
+        console.log(`Transfer of ${amount} units to ${number} successful.`);
         this.showBalance();
         await this.afterActionMenu();
         break;
@@ -236,18 +236,18 @@ Menu Principal MyTel (*123#)
 
   private async afterActionMenu(): Promise<void> {
     console.log(`
-Que souhaitez-vous faire ?
-1. Retour au menu principal
-0. Quitter
+What would you like to do?
+1. Return to main menu
+0. Exit
 `);
-    const choice = await this.inputHandler.ask("Votre choix : ");
+    const choice = await this.inputHandler.ask("Your choice: ");
     if (choice === "0") {
       this.quit();
     }
   }
 
   private quit(): void {
-    console.log("Merci d'avoir utilisé le service MyTel.");
+    console.log("Thank you for using the MyTel service.");
     this.inputHandler.close();
     process.exit(0);
   }
